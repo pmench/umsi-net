@@ -41,11 +41,15 @@ def update_cache(filepath, data, key=None):
     cached = read_json(filepath)
     if key:
         try:
-            cached[key].extend(data)
+            if key in cached.keys():
+                if isinstance(data, dict):
+                    cached[key].update(data)
+                else:
+                    cached[key].extend(data)
         except KeyError:
             cached[key] = data
         except AttributeError as e:
-            print(f"Cannot append to value: {e}")
+            print(f"Cannot update value: {e}")
     else:
         cached.update(data)
     write_json(filepath, cached)
@@ -64,7 +68,7 @@ def save_cache(filepath, data, key=None):
     cache = {}
     if key:
         cache[key] = data
-        utl.write_json(filepath, cache)
+        write_json(filepath, cache)
         return cache
     else:
-        utl.write_json(filepath, data)
+        write_json(filepath, data)
