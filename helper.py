@@ -44,7 +44,7 @@ def update_cache(filepath, data, key=None):
             if key in cached.keys():
                 if isinstance(data, dict):
                     cached[key].update(data)
-                if isinstance(data, list):
+                elif isinstance(data, list):
                     cached[key].extend(data)
             else:
                 cached[key] = data
