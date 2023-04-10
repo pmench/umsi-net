@@ -39,19 +39,19 @@ def update_cache(filepath, data, key=None):
     :return: None.
     """
     cached = read_json(filepath)
-    if key:
-        try:
+    try:
+        if key:
             if key in cached.keys():
                 if isinstance(data, dict):
                     cached[key].update(data)
-                else:
+                if isinstance(data, list):
                     cached[key].extend(data)
-        except KeyError:
-            cached[key] = data
-        except AttributeError as e:
-            print(f"Cannot update value: {e}")
-    else:
-        cached.update(data)
+            else:
+                cached[key] = data
+        else:
+            cached.update(data)
+    except AttributeError as e:
+        print(f"Cannot update value: {e}")
     write_json(filepath, cached)
 
 
