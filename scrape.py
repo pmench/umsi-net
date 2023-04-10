@@ -52,7 +52,7 @@ def main():
     # Faculty list was created with the below code by manually passing in the index for each url in urls
     # and caching the results
     umsi_faculty = []
-    driver.get(urls[9])
+    driver.get(urls[10])
     directory_elements = driver.find_element(By.CLASS_NAME, 'directory-teaser-group')
     faculty_elements = directory_elements.find_elements(By.CLASS_NAME, 'research-person-profile')
 
@@ -63,6 +63,7 @@ def main():
     utl.update_cache('cache.json', umsi_faculty, key='umsi_faculty')
 
     driver.quit()
+
 
 
 if __name__ == '__main__':
