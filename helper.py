@@ -49,3 +49,22 @@ def update_cache(filepath, data, key=None):
     else:
         cached.update(data)
     write_json(filepath, cached)
+
+
+def save_cache(filepath, data, key=None):
+    """
+    Writes data to given filepath in JSON format to create a cache. If a key is provided, it adds
+    the given data as values to the key.
+
+    :param filepath:
+    :param data:
+    :param key:
+    :return:
+    """
+    cache = {}
+    if key:
+        cache[key] = data
+        utl.write_json(filepath, cache)
+        return cache
+    else:
+        utl.write_json(filepath, data)
