@@ -65,6 +65,5 @@ def main():
     driver.quit()
 
 
-
 if __name__ == '__main__':
     main()
