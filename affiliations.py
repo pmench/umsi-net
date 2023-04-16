@@ -1,6 +1,5 @@
 import os
 from tqdm import tqdm
-import pprint
 import time
 
 import openai
@@ -75,8 +74,6 @@ def main():
     :parameter: none.
     :return: none.
     """
-    # Configure pretty printer
-    pp = pprint.PrettyPrinter(indent=2, sort_dicts=False, width=100)
 
     # Load data from cache
     auths_coauths = utl.read_json('cache.json')['auths-coauths']

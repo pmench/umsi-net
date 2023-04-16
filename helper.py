@@ -1,4 +1,15 @@
 import json
+import pprint
+
+
+def print_pretty(obj):
+    """
+    TODO: Write docstring
+    :param obj:
+    :return:
+    """
+    pp = pprint.PrettyPrinter(indent=2, sort_dicts=False, width=100)
+    return pp.pprint(obj)
 
 
 def read_json(filepath, encoding='utf-8'):
