@@ -12,10 +12,8 @@ def main():
     """
     Entry point for program.
 
-    :param:
-        None
-    :return:
-        None
+    :parameter: none.
+    :return: none.
     """
     # Configure selenium webdriver for Brave Browser
     # from https://github.com/SergeyPirogov/webdriver_manager/issues/368
