@@ -1,6 +1,7 @@
 import os
 from tqdm import tqdm
 import pprint
+import time
 
 import openai
 
@@ -25,13 +26,13 @@ def call_openai(model, data):
     :param data:
     :return: (list) list of companies, organizations, and institutions.
     """
-    orgs = []
+    orgs = set()
     for chunk in tqdm(data):
         try:
             prompt = f'Remove job titles in the following list, only give me organization names, and separate \
             each organization name with a comma: {chunk}'
             openai.api_key = os.getenv('OPENAI_API_KEY')
-            orgs.append(openai.ChatCompletion.create(
+            response = (openai.ChatCompletion.create(
                 model=model,
                 messages=[
                     {'role': 'system',
@@ -40,6 +41,10 @@ def call_openai(model, data):
                     {'role': 'user', 'content': prompt}
                 ]
             )['choices'][0]['message']['content'])
+            for entity in response.split(', '):
+                entity = entity.replace('.', '')
+                orgs.add(entity)
+            time.sleep(20)
         except openai.error.APIError as e:
             print(f"API error: {e}")
         except openai.error.APIConnectionError as e:
@@ -88,13 +93,9 @@ def main():
             continue
 
     # Use OpenAI API to parse institutions
-    chunked = chunk_data(affils[:20], 10)
-    orgs = call_openai(model='gpt-3.5-turbo', data=chunked)
-
-    pp.pprint(orgs)
-    print(len(chunked))
-    print(affils[:10])
-    print(len(affils))
+    chunked = chunk_data(affils, 300)
+    entities = call_openai(model='gpt-3.5-turbo', data=chunked)
+    utl.update_cache('cache.json', list(entities), key='institutions')
 
 
 if __name__ == '__main__':
