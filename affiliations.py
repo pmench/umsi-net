@@ -7,22 +7,17 @@ import openai
 import helper as utl
 
 
-def call_openai(model, data):
+def call_openai(model, data, limit=1, count=1):
     """
     TODO: Update docstring
-    Calls the OpenAI API (https://platform.openai.com/docs/introduction)
-    using the given model and prompt. Supported models are currently:
-        - gpt-4
-        - gpt-4-0314
-        - gpt-4-32k
-        - gpt-4-32k-0314
-        - gpt-3.5-turbo
-        - gpt-3.5-turbo-0301
+    Calls the OpenAI API (https://platform.openai.com/docs/introduction) to extract the names
+    of organizations in the passed in data. A list of OpenAI models can be found here:
     https://platform.openai.com/docs/models/model-endpoint-compatibility
-    Error handling based on API documentation:
+    Error handling code is based on API documentation:
     https://platform.openai.com/docs/guides/error-codes/python-library-error-types
     :param model: (str) OpenAI chat model to use for correction.
     :param data:
+    :param limit:
     :return: (list) list of companies, organizations, and institutions.
     """
     orgs = set()
@@ -54,12 +49,17 @@ def call_openai(model, data):
             print(f"Credential error: {e}")
         except openai.error.InvalidRequestError as e:
             print(f"Exceeded token limit: {e}")
-    return orgs
+    if count >= limit:
+        return list(orgs)
+    else:
+        count += 1
+        chunked = chunk_data(list(orgs), 300)
+        return call_openai(model='gpt-3.5-turbo', data=chunked, count=count, limit=limit)
 
 
 def chunk_data(data, size):
     """
-    TODO: Write docstring
+    TODO: Write docstring.
     :param data:
     :param size:
     :return:
@@ -76,7 +76,7 @@ def main():
     """
 
     # Load data from cache
-    auths_coauths = utl.read_json('cache.json')['auths-coauths']
+    auths_coauths = utl.read_json('cache.json').get('auths-coauths')
 
     # Get institutional affiliations data from cache
     affils = []
@@ -91,8 +91,8 @@ def main():
 
     # Use OpenAI API to parse institutions
     chunked = chunk_data(affils, 300)
-    entities = call_openai(model='gpt-3.5-turbo', data=chunked)
-    utl.update_cache('cache.json', list(entities), key='institutions')
+    entities = call_openai(model='gpt-3.5-turbo', data=chunked, limit=2)
+    utl.update_cache('cache.json', entities, key='institutions')
 
 
 if __name__ == '__main__':
