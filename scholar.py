@@ -1,16 +1,15 @@
-from scholarly import scholarly, ProxyGenerator
-import helper as utl
-import pprint
-from tqdm import tqdm
 import os
 
-# Configure pretty printer
-pp = pprint.PrettyPrinter(indent=2, sort_dicts=False, width=100)
+from scholarly import scholarly, ProxyGenerator
+from tqdm import tqdm
+
+import helper as utl
 
 # Load data
 faculty = utl.read_json('cache.json')['umsi_faculty']
 
 # Set up proxy
+# NOTE: Proxy will often fail due to Google blocking
 pg = ProxyGenerator()
 print(pg.ScraperAPI(os.getenv('SCRAPERAPI_KEY')))  # returns True if successful connection
 scholarly.use_proxy(pg)
@@ -31,7 +30,7 @@ for person in tqdm(faculty):
             auth = scholarly.fill(author, sections=['coauthors'])
             auths_coauths.append({key: value for key, value in auth.items() if key in extract_keys})
     except Exception as e:
-        utl.update_cache('cache.json', auths_coauths, key='auths-coauths')
+        utl.update_cache('cache-test.json', auths_coauths, key='auths-coauths')
         print(e)
 
 # Retain only exact matches and write to cache
@@ -42,5 +41,4 @@ for profile in auths_coauths:
         remove.append(profile)
 for profile in remove:
     auths_coauths.remove(profile)
-utl.update_cache('cache.json', auths_coauths, key='auths-coauths')
-
+utl.update_cache('cache-test.json', auths_coauths, key='auths-coauths')
