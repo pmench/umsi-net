@@ -1,30 +1,35 @@
 import os
-from tqdm import tqdm
 import time
 
 import openai
+from tqdm import tqdm
 
 import helper as utl
 
 
 def call_openai(model, data, limit=1, count=1):
     """
-    TODO: Update docstring
-    Calls the OpenAI API (https://platform.openai.com/docs/introduction) to extract the names
-    of organizations in the passed in data. A list of OpenAI models can be found here:
+    Calls the OpenAI API (https://platform.openai.com/docs/introduction) to extract unique names
+    of organizations in the passed-in data. It provides the option to use recursion to pass the organization
+    names through the OpenAI API more than once to try to reduce the number of errors in the final output.
+
+    A list of OpenAI models can be found here:
     https://platform.openai.com/docs/models/model-endpoint-compatibility
+
     Error handling code is based on API documentation:
     https://platform.openai.com/docs/guides/error-codes/python-library-error-types
+
     :param model: (str) OpenAI chat model to use for correction.
-    :param data:
-    :param limit:
+    :param data: (list) list of organization names to parse.
+    :param limit: (int) maximum number of iterations.
+    :param count: (int) counter that updates with each iteration and terminates recursion when it equals limit.
     :return: (list) list of companies, organizations, and institutions.
     """
     orgs = set()
     for chunk in tqdm(data):
         try:
-            prompt = f'Remove job titles in the following list, only give me organization names, and separate \
-            each organization name with a comma: {chunk}'
+            prompt = f"Remove job titles such as 'Professor' or 'Research Scientist' or 'Software Engineer' in the\
+            following list. Only give me organization names, and separate each organization name with a comma: {chunk}"
             openai.api_key = os.getenv('OPENAI_API_KEY')
             response = (openai.ChatCompletion.create(
                 model=model,
@@ -59,10 +64,10 @@ def call_openai(model, data, limit=1, count=1):
 
 def chunk_data(data, size):
     """
-    TODO: Write docstring.
-    :param data:
-    :param size:
-    :return:
+    Splits data into chunks less than or equal to the length specified in size.
+    :param data: (list) data to split into chunks.
+    :param size: desired size of chunks.
+    :return: list of lists.
     """
     chunks = [data[i:i + size] for i in range(0, len(data), size)]
     return chunks
