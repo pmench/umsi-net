@@ -4,9 +4,10 @@ import pprint
 
 def print_pretty(obj):
     """
-    TODO: Write docstring
-    :param obj:
-    :return:
+    Applies PrettyPrinter to passed in object.
+
+    :param obj: (list | dict) Object to be pretty printed
+    :return: formatted representation of object.
     """
     pp = pprint.PrettyPrinter(indent=2, sort_dicts=False, width=100)
     return pp.pprint(obj)
@@ -71,10 +72,10 @@ def save_cache(filepath, data, key=None):
     Writes data to given filepath in JSON format to create a cache. If a key is provided, it adds
     the given data as values to the key.
 
-    :param filepath:
-    :param data:
-    :param key:
-    :return:
+    :param filepath: (str) path for file.
+    :param data: (list | dict | str) data to write to cache.
+    :param key: (str) key to assign to data.
+    :return: (dict) cached ata.
     """
     cache = {}
     if key:
