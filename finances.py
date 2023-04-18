@@ -2,7 +2,6 @@ import re
 import urllib.error
 import helper as utl
 
-import numpy as np
 import pandas as pd
 
 WIKIPEDIA_ENDPOINT = 'https://en.wikipedia.org/wiki/'
@@ -24,11 +23,11 @@ def get_assets(orgs):
             wiki_scraped = pd.read_html(f"{WIKIPEDIA_ENDPOINT}{org}", header=0)
         except ValueError as e:
             print(f"{org} not found: {e}")
-            enrich_orgs.append({'org': org.replace('%20', ' '), 'endowment': np.nan})
+            enrich_orgs.append({'org': org.replace('%20', ' '), 'endowment': None})
             continue
         except urllib.error.HTTPError as e:
             print(f"{org} not found: {e}")
-            enrich_orgs.append({'org': org.replace('%20', ' '), 'endowment': np.nan})
+            enrich_orgs.append({'org': org.replace('%20', ' '), 'endowment': None})
             continue
         for table in tables:
             try:
@@ -43,11 +42,11 @@ def get_assets(orgs):
                         continue
             except KeyError as e:
                 print(f"{org} table {table} column not found: {e}")
-                enrich_orgs.append({'org': org.replace('%20', ' '), 'endowment': np.nan})
+                enrich_orgs.append({'org': org.replace('%20', ' '), 'endowment': None})
                 continue
             except IndexError as e:
-                print(f"{org} table not found")
-                enrich_orgs.append({'org': org.replace('%20', ' '), 'endowment': np.nan})
+                print(f"{org} table not found: {e}")
+                enrich_orgs.append({'org': org.replace('%20', ' '), 'endowment': None})
                 continue
     return enrich_orgs
 
