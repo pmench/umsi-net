@@ -1,26 +1,44 @@
-import requests
+import re
+
+import numpy as np
+import pandas as pd
 
 import helper as utl
 
-PROPUBLICA_ENDPOINT = 'https://projects.propublica.org/nonprofits/api/v2'
+WIKIPEDIA_ENDPOINT = 'https://en.wikipedia.org/wiki/'
 
 
 def get_assets(orgs):
     """
-    TODO: Write docstring
-    :param orgs:
-    :return:
+    Scrapes endowment information from Wikipedia for each organization in the orgs list.
+    I used https://regex101.com/ and ChatGPT to help craft the regex expression.
+    :param orgs: (list) organizations for which endowment data is desired.
+    :return: (dict) dictionary of organizations enriched with endowment size where available.
     """
     enrich_orgs = {}
-    ntee = ['B110', 'B11', 'B420', 'B42', 'B430', 'B43', 'B43Z']
+    tables = [0, 1, 2]
     for org in orgs:
         if org not in enrich_orgs.keys():
-            results = requests.get(
-                f"{PROPUBLICA_ENDPOINT}/search.json?q={org.lower()}&ntee%5Bid%5D=2&c_code%5Bid%5D=3").json().get(
-                'organizations')
-            for result in results:
-                if result.get('ntee_code') in ntee:
-                    enrich_orgs[org] = {}  # FIXME: this should be a second call to the API using organization method
+            try:
+                org = org.replace(' ', '%20')
+                wiki_scraped = pd.read_html(f"{WIKIPEDIA_ENDPOINT}{org}", header=0)
+            except ValueError as e:
+                print(f"Org not found: {e}")
+                enrich_orgs[org.replace('%20', ' ')] = {'endowment': np.nan}
+                continue
+            for table in tables:
+                try:
+                    endow = wiki_scraped[table].loc[wiki_scraped[table]['Unnamed: 0'] == 'Endowment'][
+                        'Unnamed: 1'].to_string().strip()
+                    regex = r'\$(\d+\s*.*?)\s*\[\d+\]'
+                    match = re.search(regex, endow)
+                    if match:
+                        clean_endow = match.group(1)
+                        enrich_orgs[org.replace('%20', ' ')] = {'endowment': clean_endow}
+                except KeyError as e:
+                    print(f"Table {table} column not found: {e}")
+                    continue
+    return enrich_orgs
 
 
 def main():
@@ -30,7 +48,9 @@ def main():
     :return: none.
     """
     institutions = utl.read_json('cache.json').get('institutions')
-    utl.print_pretty(institutions)
+    # utl.print_pretty(institutions)
+    t = get_assets(['University of Michigan'])
+    print(t)
 
 
 if __name__ == '__main__':
