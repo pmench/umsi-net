@@ -1,3 +1,4 @@
+import csv
 import json
 import pprint
 
@@ -39,6 +40,28 @@ def write_json(filepath, data, encoding='utf-8', ensure_ascii=False, indent=2):
     """
     with open(filepath, 'w', encoding=encoding) as file_obj:
         json.dump(data, file_obj, ensure_ascii=ensure_ascii, indent=indent)
+
+
+def write_csv(filepath, data, headers=None, encoding='utf-8', newline=''):
+    """
+    Writes data to a CSV file. Column headers are written as the first
+    row of the CSV file if optional headers are specified.
+
+    :param filepath: (str) path to file.
+    :param data: (list | tuple ) data to write to CSV.
+    :param headers: (list | tuple) optional header row for CSV.
+    :param encoding: (str) name of encoding for file.
+    :param newline: (str) replacement value for newline character
+    :return: none.
+    """
+    with open(filepath, 'w', encoding=encoding, newline=newline) as file_obj:
+        writer = csv.writer(file_obj)
+        if headers:
+            writer.writerow(headers)
+            for row in data:
+                writer.writerow(row)
+        else:
+            writer.writerows(data)
 
 
 def update_cache(filepath, data, key=None):
