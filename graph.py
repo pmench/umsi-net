@@ -80,6 +80,7 @@ class Vertex:
         self.pred = None
         self.affiliation = None
         self.affil_assets = None
+        self.degree = 0
 
     def add_neighbor(self, nbr, weight=0):
         self.connected_to[nbr] = weight
@@ -125,6 +126,12 @@ class Vertex:
 
     def get_affil_assets(self):
         return self.affil_assets
+
+    def get_degree(self):
+        return self.degree
+
+    def calc_degree(self):
+        self.degree = len(self.connected_to.keys())
 
 
 def build_graph(data):
@@ -234,6 +241,14 @@ def reset_graph(graph):
         vert.set_pred(None)
 
 
+def get_degrees(graph):
+    authors = []
+    for key in graph.vert_list.keys():
+        graph.vert_list[key].calc_degree()
+        authors.append((key, graph.vert_list[key].get_degree()))
+    return sorted(authors, key=lambda item: item[1], reverse=True)
+
+
 def main():
     """
     Entry point for program.
@@ -242,13 +257,22 @@ def main():
     :return: none.
     """
     umsi_net = build_graph(utl.read_json('cache.json'))
-    utl.print_pretty(umsi_net.vert_list)
+    # utl.print_pretty(umsi_net.vert_list)
     print(len(umsi_net.vert_list))
     print((umsi_net.get_vertex('Ixchel Faniel').get_id(), umsi_net.get_vertex('Ixchel Faniel').get_affiliation()))
     print((umsi_net.get_vertex('Stanford University').get_id(),
            umsi_net.get_vertex('Stanford University').get_affil_assets()))
     print(umsi_net.get_vertex('Michael S. Bernstein'))
-    print(bfs(umsi_net, umsi_net.get_vertex('Mark Ackerman'), umsi_net.get_vertex('Ixchel Faniel')))
+    print(bfs(umsi_net, umsi_net.get_vertex('Dan Jurafsky'), umsi_net.get_vertex('Ixchel Faniel')))
+    utl.print_pretty(get_degrees(umsi_net)[:10])
+    t = []
+    final = []
+    for obj in umsi_net.get_vertex('University of Michigan').get_connections():
+        t.append(obj)
+    for vert in t:
+        final.append([vert.get_id()])
+    print(final)
+    utl.write_csv('umsi_connect.csv', final)
 
 
 if __name__ == '__main__':
