@@ -1,10 +1,13 @@
-import helper as utl
 from tqdm import tqdm
+
+import helper as utl
+
 
 # Graph class from Runestone Academy
 # https://runestone.academy/ns/books/published/pythonds/Graphs/Implementation.html
 class Graph:
     """
+    TODO: Update docstring
     This class defines a graph object.
 
     Attributes:
@@ -123,15 +126,14 @@ class Vertex:
         return self.affil_assets
 
 
-def main():
+def build_graph(data):
     """
-    Entry point for program.
+    Constructs a graph object of UMSI faculty and their co-authors and affiliations.
 
-    :params: none.
-    :return: none.
+    :param data: (dict) faculty and institution data.
+    :return: graph object.
     """
     g = Graph()
-    data = utl.read_json('cache.json')
 
     # Add UMSI faculty to graph
     for faculty in tqdm(data.get('auths-coauths'), 'Adding UMSI faculty'):
@@ -167,6 +169,22 @@ def main():
                     if entity in affil:
                         g.add_edge(vert, entity)
                         g.add_edge(entity, vert)
+    return g
+
+
+def main():
+    """
+    Entry point for program.
+
+    :params: none.
+    :return: none.
+    """
+    umsi_net = build_graph(utl.read_json('cache.json'))
+    utl.print_pretty(umsi_net.vert_list)
+    print(len(umsi_net.vert_list))
+    print((umsi_net.get_vertex('Ixchel Faniel').get_id(), umsi_net.get_vertex('Ixchel Faniel').get_affiliation()))
+    print((umsi_net.get_vertex('Stanford University').get_id(),
+           umsi_net.get_vertex('Stanford University').get_affil_assets()))
 
 
 if __name__ == '__main__':
