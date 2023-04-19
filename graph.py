@@ -106,6 +106,10 @@ class Vertex:
     def get_connections(self):
         return self.connected_to.keys()
 
+    def get_connection_ids(self):
+        connects = self.connected_to.keys()
+        return [[vert.get_id()] for vert in connects]
+
     def get_id(self):
         return self.id
 
@@ -272,7 +276,8 @@ def main():
     for vert in t:
         final.append([vert.get_id()])
     print(final)
-    utl.write_csv('umsi_connect.csv', final)
+    # utl.write_csv('umsi_connect.csv', final)
+    print(umsi_net.get_vertex('University of Michigan').get_connect_id())
 
 
 if __name__ == '__main__':
