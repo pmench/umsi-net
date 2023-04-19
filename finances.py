@@ -19,7 +19,7 @@ def get_assets(orgs):
     tables = [0, 1, 2]
     for org in orgs:
         try:
-            org = org.replace(' ', '_')
+            org = org.replace(' ', '%20')
             wiki_scraped = pd.read_html(f"{WIKIPEDIA_ENDPOINT}{org}", header=0)
         except ValueError as e:
             print(f"{org} not found: {e}")
@@ -60,7 +60,6 @@ def main():
     institutions = utl.read_json('cache.json').get('institutions')
     enriched = get_assets(institutions)
     utl.update_cache('cache.json', enriched, key='enrich_institutions')
-    # t = get_assets(['University of Oxford'])
     print(len(institutions))
     print(len(enriched))
 
