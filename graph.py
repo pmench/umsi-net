@@ -253,6 +253,14 @@ def get_degrees(graph):
     return sorted(authors, key=lambda item: item[1], reverse=True)
 
 
+def get_avg_degrees(graph):
+    degrees = []
+    for key in graph.vert_list.keys():
+        graph.vert_list[key].calc_degree()
+        degrees.append((graph.vert_list[key].get_degree()))
+    return sum(degrees) / len(graph.vert_list.keys())
+
+
 def main():
     """
     Entry point for program.
@@ -269,15 +277,9 @@ def main():
     print(umsi_net.get_vertex('Michael S. Bernstein'))
     print(bfs(umsi_net, umsi_net.get_vertex('Dan Jurafsky'), umsi_net.get_vertex('Ixchel Faniel')))
     utl.print_pretty(get_degrees(umsi_net)[:10])
-    t = []
-    final = []
-    for obj in umsi_net.get_vertex('University of Michigan').get_connections():
-        t.append(obj)
-    for vert in t:
-        final.append([vert.get_id()])
-    print(final)
-    # utl.write_csv('umsi_connect.csv', final)
-    print(umsi_net.get_vertex('University of Michigan').get_connect_id())
+
+    print(umsi_net.get_vertex('University of Michigan').get_connection_ids())
+    print(get_avg_degrees(umsi_net))
 
 
 if __name__ == '__main__':
