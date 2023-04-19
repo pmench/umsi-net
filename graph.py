@@ -1,5 +1,5 @@
 import helper as utl
-
+from tqdm import tqdm
 
 # Graph class from Runestone Academy
 # https://runestone.academy/ns/books/published/pythonds/Graphs/Implementation.html
@@ -29,11 +29,14 @@ class Graph:
         self.vert_list = {}
         self.num_vertices = 0
 
-    def add_vertex(self, key):
-        self.num_vertices = self.num_vertices + 1
-        new_vertex = Vertex(key)
-        self.vert_list[key] = new_vertex
-        return new_vertex
+    def add_vertex(self, key, warn=False):
+        if key not in self.vert_list:
+            self.num_vertices = self.num_vertices + 1
+            new_vertex = Vertex(key)
+            self.vert_list[key] = new_vertex
+            return new_vertex
+        elif warn is True:
+            print(f'{key} already in graph')
 
     def get_vertex(self, n):
         if n in self.vert_list:
@@ -89,8 +92,11 @@ class Vertex:
     def set_pred(self, p):
         self.pred = p
 
-    def set_movies(self, m):
-        self.movies = m
+    def set_affiliation(self, a):
+        self.affiliation = a
+
+    def set_affil_assets(self, e):
+        self.affil_assets = e
 
     def get_connections(self):
         return self.connected_to.keys()
@@ -117,18 +123,51 @@ class Vertex:
         return self.affil_assets
 
 
-# Estimate number of entities in data
-data = utl.read_json('cache.json')
+def main():
+    """
+    Entry point for program.
 
-faculty = len(data['auths-coauths'])
-coauths = 0
-institutions = len(data.get('institutions'))
+    :params: none.
+    :return: none.
+    """
+    g = Graph()
+    data = utl.read_json('cache.json')
 
-for person in data['auths-coauths']:
-    try:
-        for coauth in person.get('coauthors'):
-            coauths += 1
-    except TypeError:
-        continue
+    # Add UMSI faculty to graph
+    for faculty in tqdm(data.get('auths-coauths'), 'Adding UMSI faculty'):
+        g.add_vertex(faculty.get('name'))
+        g.get_vertex(faculty.get('name')).set_affiliation('University of Michigan')
+        g.get_vertex(faculty.get('name')).set_affil_assets(
+            next(affil['endowment'] for affil in data.get('enrich_institutions') if
+                 affil['org'] == 'University of Michigan'))
 
-print(f"faculty = {faculty}, coauths = {coauths}, institutions = {institutions}")
+    # Add institutions with assets to graph
+    for org in tqdm(data.get('enrich_institutions'), 'Adding institutions'):
+        if org.get('endowment') is not None:
+            g.add_vertex(org.get('org'))
+            g.get_vertex(org.get('org')).set_affil_assets(org.get('endowment'))
+
+    # Add coauthors to graph and connect people
+    for faculty in tqdm(data.get('auths-coauths'), 'Connecting people'):
+        if faculty.get('coauthors') is not None:
+            for person in faculty.get('coauthors'):
+                g.add_vertex(person.get('name'))
+                g.add_edge(faculty.get('name'), person.get('name'))
+                g.add_edge(person.get('name'), faculty.get('name'))
+                if g.get_vertex(person.get('name')).get_affiliation() is None:
+                    g.get_vertex(person.get('name')).set_affiliation(person.get('affiliation'))
+
+    # Connect institutions and people
+    verts = g.vert_list.keys()
+    for vert in tqdm(verts, 'Connecting people and institutions'):
+        current_vert = [g.get_vertex(vert).get_affiliation()]
+        for affil in current_vert:
+            if affil is not None:
+                for entity in verts:
+                    if entity in affil:
+                        g.add_edge(vert, entity)
+                        g.add_edge(entity, vert)
+
+
+if __name__ == '__main__':
+    main()
