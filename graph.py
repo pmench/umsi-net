@@ -1,4 +1,5 @@
 from tqdm import tqdm
+from collections import deque
 
 import helper as utl
 
@@ -172,6 +173,67 @@ def build_graph(data):
     return g
 
 
+def bfs(graph, start, end):
+    """
+    TODO: Update docstring
+    This function uses breadth-first search to find the shortest path
+    between the start and end.
+
+    Parameters:
+        graph (object): object of Graph() class containing data.
+        start (object): vertex where search should begin.
+        end (object): vertex where search should end.
+    Returns:
+        integer representing distance between start and end.
+    """
+    reset_graph(graph)
+    try:
+        q = deque()
+        q.appendleft(start)
+        preds = []
+        while q:
+            current_vert = q.pop()
+            if current_vert == end:
+                x = current_vert
+                while x.get_pred():
+                    print(x.get_id())
+                    preds.append(x.get_id())
+                    x = x.get_pred()
+                preds.append(x.get_id())
+                print(x.get_id())
+                return current_vert.get_distance()
+            else:
+                for nbr in current_vert.get_connections():
+                    if nbr.get_color() == 'white':
+                        nbr.set_color('gray')
+                        nbr.set_distance(current_vert.get_distance() + 1)
+                        nbr.set_pred(current_vert)
+                        q.appendleft(nbr)
+                current_vert.set_color('black')
+    except KeyError as e:
+        print(f"Entity not found: {e}")
+        return None
+    except AttributeError as e:
+        print(f"Entity not found: {e}")
+        return None
+
+
+def reset_graph(graph):
+    """
+    This function allows for successive searches of the graph by resetting
+    vertex attributes that are used to track visited vertices during search.
+
+    Parameters:
+        graph (object): object of the Graph() class containing vertices.
+    Returns:
+        None
+    """
+    for vert in graph:
+        vert.set_color('white')
+        vert.set_distance(0)
+        vert.set_pred(None)
+
+
 def main():
     """
     Entry point for program.
@@ -185,6 +247,8 @@ def main():
     print((umsi_net.get_vertex('Ixchel Faniel').get_id(), umsi_net.get_vertex('Ixchel Faniel').get_affiliation()))
     print((umsi_net.get_vertex('Stanford University').get_id(),
            umsi_net.get_vertex('Stanford University').get_affil_assets()))
+    print(umsi_net.get_vertex('Michael S. Bernstein'))
+    print(bfs(umsi_net, umsi_net.get_vertex('Mark Ackerman'), umsi_net.get_vertex('Ixchel Faniel')))
 
 
 if __name__ == '__main__':
