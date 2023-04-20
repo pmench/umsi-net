@@ -298,7 +298,7 @@ def parse_endow(endowment):
     regex = r'((£|\$|€|¥)s*.*?)\s'
     match = re.search(regex, endowment)
     if match:
-        clean_endow = float(match.group(1).strip(match.group(2)).replace(',', ''))
+        clean_endow = float(match.group(1).strip(match.group(2)).replace(',', '.'))
         if 'billion' in endowment:
             factor_endow = clean_endow * units.get('billion')
             return factor_endow
