@@ -1,3 +1,4 @@
+import pathlib
 import sys
 
 import matplotlib.pyplot as plt
@@ -180,7 +181,28 @@ def main():
                 else:
                     print("I'm sorry. I don't understand. Returning to main menu...")
                     break
-        # if usr == '5':
+        if usr == '5':
+            avg_degree = graph.get_avg_degree(umsi_net)
+            print(f"The average number of connections is {round(avg_degree)}.")
+            choice = input('Choose "menu" or "exit" to continue.\n')
+            if choice == 'menu':
+                continue
+            if choice == 'exit':
+                sys.exit('Goodbye!')
+        if usr == '6':
+            # Method for getting file path from:
+            # https://stackoverflow.com/questions/3430372/how-do-i-get-the-full-path-of-the-current-files-directory#3430395
+            cached_data = [[person] for person in utl.read_json('cache.json')['umsi_faculty']]
+            path = f'{pathlib.Path(__file__).parent.resolve()}/umsi_faculty.csv'
+            print(f'Writing file to: {path}\n'
+                  f'Note that some faculty listed might not be included in the graph.\nGraph data was sourced from'
+                  f' Google Scholar, which is not comprehensive.\n')
+            utl.write_csv(path, cached_data)
+            choice = input('Choose "menu" or "exit" to continue.\n')
+            if choice == 'menu':
+                continue
+            if choice == 'exit':
+                sys.exit('Goodbye!')
 
 
 if __name__ == '__main__':
