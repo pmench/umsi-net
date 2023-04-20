@@ -7,7 +7,7 @@ import graph
 import helper as utl
 
 
-def display(shortest_path, start, end):
+def display_path(shortest_path, start, end):
     """
     TODO: Write docstring.
     :param end:
@@ -22,6 +22,44 @@ def display(shortest_path, start, end):
     print(display_df.to_markdown(tablefmt='grid'))
     print(f"{start} is {shortest_path[0]} degrees from {end}")
     return display_df
+
+
+def get_links(net, start=None, end=None, rand=False):
+    """
+    TODO: Write docstring
+    :param net:
+    :param rand:
+    :param start:
+    :param end:
+    :return:
+    """
+    if rand:
+        generator = np.random.default_rng()
+        authors = generator.choice(list(net.get_vertices()), 2)
+        author_links = graph.bfs(net, net.get_vertex(authors[0]), net.get_vertex(authors[1]))
+    else:
+        author_links = graph.bfs(net, net.get_vertex(start), net.get_vertex(end))
+        authors = [start, end]
+    for author in author_links[1]:
+        pos = author_links[1].index(author)
+        author_links[1].remove(author)
+        author_links[1].insert(pos, (author, net.get_vertex(author).get_affiliation(),
+                                     net.get_vertex(author).get_affil_endow()))
+    display_path(author_links, authors[0], authors[1])
+
+
+def display_degrees(degrees_data):
+    """
+    TODO: Write docstring
+    :param degrees_data:
+    :return:
+    """
+    entities = [ent[0] for ent in degrees_data]
+    degrees = [ent[1] for ent in degrees_data]
+    top_connects = pd.DataFrame({'Person/Institution': entities, 'Number of Connections': degrees})
+    top_connects.index += 1
+    print(top_connects.to_markdown(tablefmt='grid'))
+    return top_connects
 
 
 def main():
@@ -51,25 +89,40 @@ def main():
             sys.exit('Goodbye!')
         if usr == '1':
             while True:
-                choice = input('Would you like to choose two authors (1) or '
-                               + 'should I choose two for you (2)?\n'
-                                 'Type "menu" to return to the main menu.\n')
+                choice = input('Would you like to choose two authors (enter 1) or '
+                               + 'should I choose two for you (enter 2)?\n'
+                                 'Exit or enter "menu" to return to the main menu.\n')
                 if choice == '1':
-                    pass
+                    try:
+                        author_1 = input("Enter first author's name.\n")
+                        author_2 = input("Enter second author's name.\n")
+                        get_links(umsi_net, author_1, author_2)
+                    except TypeError:
+                        print("Sorry, I don't understand.\nCheck your spelling. It is also possible one of the authors"
+                              + " you entered isn't in my data. Please try again.\n")
                 if choice == '2':
-                    generator = np.random.default_rng()
-                    authors = generator.choice(list(umsi_net.get_vertices()), 2)
-                    author_links = graph.bfs(umsi_net, umsi_net.get_vertex(authors[0]), umsi_net.get_vertex(authors[1]))
-                    for author in author_links[1]:
-                        pos = author_links[1].index(author)
-                        author_links[1].remove(author)
-                        author_links[1].insert(pos, (author, umsi_net.get_vertex(author).get_affiliation(),
-                                                     umsi_net.get_vertex(author).get_affil_endow()))
-                    display(author_links, authors[0], authors[1])
+                    get_links(umsi_net, rand=True)
                 if choice == 'menu':
                     break
                 if choice == 'exit':
                     sys.exit('Goodbye!')
+                else:
+                    print(f"Sorry, {choice} isn't an option I recognize. Please try again.")
+        if usr == '2':
+            display_degrees(graph.get_degrees(umsi_net)[:10])
+            while True:
+                x_num = input('Would you like to view more? Enter the number of results you would like to see.\n'
+                              'You can also enter "exit" or "menu" to return to the main menu.\n')
+                try:
+                    x_num = int(x_num)
+                    display_degrees(graph.get_degrees(umsi_net)[:x_num])
+                except ValueError:
+                    if x_num == 'exit':
+                        sys.exit('Goodbye!')
+                    if x_num == 'menu':
+                        break
+                    else:
+                        print("I'm sorry. I don't understand. Please try again.")
 
 
 if __name__ == '__main__':
