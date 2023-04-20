@@ -84,6 +84,7 @@ class Vertex:
         self.affiliation = None
         self.affil_endow = None
         self.degree = 0
+        self.type = None
 
     def add_neighbor(self, nbr, weight=0):
         self.connected_to[nbr] = weight
@@ -105,6 +106,9 @@ class Vertex:
 
     def set_affil_endow(self, e):
         self.affil_endow = e
+
+    def set_type(self, t):
+        self.type = t
 
     def get_connections(self):
         return self.connected_to.keys()
@@ -140,6 +144,9 @@ class Vertex:
     def calc_degree(self):
         self.degree = len(self.connected_to.keys())
 
+    def get_type(self):
+        return self.type
+
 
 def build_graph(data):
     """
@@ -160,6 +167,7 @@ def build_graph(data):
         if org.get('endowment') is not None:
             g.add_vertex(org.get('org'))
             g.get_vertex(org.get('org')).set_affil_endow(org.get('endowment'))
+            g.get_vertex(org.get('org')).set_type('institution')
 
     # Add coauthors to graph and connect people
     for faculty in tqdm(data.get('auths-coauths'), 'Connecting people'):
@@ -272,21 +280,25 @@ def get_avg_degree(graph):
     return sum(degrees) / len(graph.vert_list.keys())
 
 
-def get_endow_summary(graph):
+def get_endow_summary(graph, show_all=False):
     """
     TODO: Write docstring, make number more readable
+    :param show_all:
     :param graph:
     :return:
     """
     endowments = []
     with_endowments = 0
     for vert in graph.vert_list:
-        if graph.get_vertex(vert).get_affil_endow() is not None:
+        if graph.get_vertex(vert).get_affil_endow() is not None and graph.get_vertex(vert).get_type() == 'institution':
             with_endowments += 1
             endow = graph.get_vertex(vert).get_affil_endow()
             endowments.append(parse_endow(endow))
     print(endowments)
-    return np.mean(endowments), np.median(endowments)
+    if show_all:
+        return endowments
+    else:
+        return np.mean(endowments), np.median(endowments)
 
 
 def parse_endow(endowment):
