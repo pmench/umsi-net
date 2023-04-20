@@ -1,5 +1,8 @@
-from tqdm import tqdm
+import re
 from collections import deque
+
+import numpy as np
+from tqdm import tqdm
 
 import helper as utl
 
@@ -79,7 +82,7 @@ class Vertex:
         self.dist = float('inf')
         self.pred = None
         self.affiliation = None
-        self.affil_assets = None
+        self.affil_endow = None
         self.degree = 0
 
     def add_neighbor(self, nbr, weight=0):
@@ -100,8 +103,8 @@ class Vertex:
     def set_affiliation(self, a):
         self.affiliation = a
 
-    def set_affil_assets(self, e):
-        self.affil_assets = e
+    def set_affil_endow(self, e):
+        self.affil_endow = e
 
     def get_connections(self):
         return self.connected_to.keys()
@@ -128,8 +131,8 @@ class Vertex:
     def get_affiliation(self):
         return self.affiliation
 
-    def get_affil_assets(self):
-        return self.affil_assets
+    def get_affil_endow(self):
+        return self.affil_endow
 
     def get_degree(self):
         return self.degree
@@ -151,15 +154,12 @@ def build_graph(data):
     for faculty in tqdm(data.get('auths-coauths'), 'Adding UMSI faculty'):
         g.add_vertex(faculty.get('name'))
         g.get_vertex(faculty.get('name')).set_affiliation('University of Michigan')
-        g.get_vertex(faculty.get('name')).set_affil_assets(
-            next(affil['endowment'] for affil in data.get('enrich_institutions') if
-                 affil['org'] == 'University of Michigan'))
 
-    # Add institutions with assets to graph
+    # Add institutions with endowment data to graph
     for org in tqdm(data.get('enrich_institutions'), 'Adding institutions'):
         if org.get('endowment') is not None:
             g.add_vertex(org.get('org'))
-            g.get_vertex(org.get('org')).set_affil_assets(org.get('endowment'))
+            g.get_vertex(org.get('org')).set_affil_endow(org.get('endowment'))
 
     # Add coauthors to graph and connect people
     for faculty in tqdm(data.get('auths-coauths'), 'Connecting people'):
@@ -246,6 +246,11 @@ def reset_graph(graph):
 
 
 def get_degrees(graph):
+    """
+    TODO: write docstring
+    :param graph:
+    :return:
+    """
     authors = []
     for key in graph.vert_list.keys():
         graph.vert_list[key].calc_degree()
@@ -254,11 +259,56 @@ def get_degrees(graph):
 
 
 def get_avg_degrees(graph):
+    """
+    TODO: Write docstring
+    :param graph:
+    :return:
+    """
     degrees = []
     for key in graph.vert_list.keys():
         graph.vert_list[key].calc_degree()
         degrees.append((graph.vert_list[key].get_degree()))
     return sum(degrees) / len(graph.vert_list.keys())
+
+
+def get_endow_summary(graph):
+    """
+    TODO: Write docstring, make number more readable
+    :param graph:
+    :return:
+    """
+    endowments = []
+    with_endowments = 0
+    for vert in graph.vert_list:
+        if graph.get_vertex(vert).get_affil_endow() is not None:
+            with_endowments += 1
+            endow = graph.get_vertex(vert).get_affil_endow()
+            endowments.append(parse_endow(endow))
+    print(endowments)
+    return f"avg endowment  = {np.mean(endowments)} and median endowment = {np.median(endowments)}"
+
+
+def parse_endow(endowment):
+    """
+    TODO: Write docstring and implement exchange rate handling
+    :param endowment:
+    :return:
+    """
+    units = {'billion': 1_000_000_000, 'million': 1_000_000}
+    regex = r'((£|\$|€|¥)s*.*?)\s'
+    match = re.search(regex, endowment)
+    if match:
+        clean_endow = float(match.group(1).strip(match.group(2)).replace(',', ''))
+        if 'billion' in endowment:
+            factor_endow = clean_endow * units.get('billion')
+            return factor_endow
+        elif 'million' in endowment:
+            factor_endow = clean_endow * units.get('million')
+            return factor_endow
+        else:
+            raise ValueError
+    else:
+        return float(endowment.strip('£$€¥').replace(',', ''))
 
 
 def main():
@@ -273,13 +323,14 @@ def main():
     print(len(umsi_net.vert_list))
     print((umsi_net.get_vertex('Ixchel Faniel').get_id(), umsi_net.get_vertex('Ixchel Faniel').get_affiliation()))
     print((umsi_net.get_vertex('Stanford University').get_id(),
-           umsi_net.get_vertex('Stanford University').get_affil_assets()))
+           umsi_net.get_vertex('Stanford University').get_affil_endow()))
     print(umsi_net.get_vertex('Michael S. Bernstein'))
     print(bfs(umsi_net, umsi_net.get_vertex('Dan Jurafsky'), umsi_net.get_vertex('Ixchel Faniel')))
     utl.print_pretty(get_degrees(umsi_net)[:10])
 
     print(umsi_net.get_vertex('University of Michigan').get_connection_ids())
     print(get_avg_degrees(umsi_net))
+    print(get_endow_summary(umsi_net))
 
 
 if __name__ == '__main__':

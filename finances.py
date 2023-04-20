@@ -34,7 +34,7 @@ def get_assets(orgs):
                 endow = wiki_scraped[table][wiki_scraped[table].iloc[:, 0] == 'Endowment'].iloc[
                         :, 1].to_string().strip()
                 if endow != 'Series([], )':
-                    regex = r'((£|\$|€)\s*\d+\s*.*?)\s*\[\d+\]'
+                    regex = r'((£|\$|€|¥)\s*\d+\s*.*?)\s*\[\d+\]'
                     match = re.search(regex, endow)
                     if match:
                         clean_endow = match.group(1).replace('\xa0', ' ')
