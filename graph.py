@@ -294,7 +294,6 @@ def get_endow_summary(graph, show_all=False):
             with_endowments += 1
             endow = graph.get_vertex(vert).get_affil_endow()
             endowments.append(parse_endow(endow))
-    print(endowments)
     if show_all:
         return endowments
     else:

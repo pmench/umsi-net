@@ -1,7 +1,9 @@
 import sys
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 
 import graph
 import helper as utl
@@ -60,6 +62,31 @@ def display_degrees(degrees_data):
     top_connects.index += 1
     print(top_connects.to_markdown(tablefmt='grid'))
     return top_connects
+
+
+def visualize_endows(endowments):
+    """
+    TODO: Write docstring.
+
+    Method for labeling median adapted from:
+    https://stackoverflow.com/questions/38649501/labeling-boxplot-in-seaborn-with-median-value
+
+    :param endowments:
+    :return:
+    """
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 12), sharey='all')
+    endows = pd.DataFrame({'endowments': endowments})
+    box_plot = sns.boxplot(endows, y='endowments', ax=ax1)
+    median = endows['endowments'].median()
+    for xtick in box_plot.get_xticks():
+        box_plot.text(xtick, median * 1.3, median,
+                      horizontalalignment='center', size='x-small', color='w', weight='semibold')
+    sns.histplot(endows, y='endowments', ax=ax2)
+    fig.suptitle('Endowments of Institutions Connected to UMSI Faculty', fontsize=20)
+    ax1.set_ylabel('Size of Endowments (tens of billions USD)')
+    ax1.grid(visible=True, color='b', axis='y')
+    ax2.grid(visible=True, color='b', axis='y')
+    plt.show()
 
 
 def main():
@@ -123,6 +150,15 @@ def main():
                         break
                     else:
                         print("I'm sorry. I don't understand. Please try again.")
+        if usr == '3':
+            stats = graph.get_endow_summary(umsi_net)
+            print(
+                f"Average endowment of institutions connected to UMSI faculty: ${'{:,}'.format(round(stats[0]))}\n"
+                f"The median endowment is ${'{:,}'.format(round(stats[1]))}.\n"
+                f"Foreign currencies (EUR, GBP) have been converted to USD based on exchange rates as of 2023-04-19.")
+            choice = input('Would you like me to visualize endowment data for you? Enter "yes" or "no".\n')
+            if choice == 'yes':
+                visualize_endows(graph.get_endow_summary(umsi_net, show_all=True))
 
 
 if __name__ == '__main__':
