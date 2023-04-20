@@ -213,7 +213,7 @@ def bfs(graph, start, end):
                     x = x.get_pred()
                 preds.append(x.get_id())
                 print(x.get_id())
-                return current_vert.get_distance()
+                return current_vert.get_distance(), preds
             else:
                 for nbr in current_vert.get_connections():
                     if nbr.get_color() == 'white':
