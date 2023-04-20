@@ -108,7 +108,7 @@ def main():
               '2. See the top 10 most connected people and universities.\n'
               '3. Get average and median endowment size of universities\n'
               + '   connected to UMSI faculty by their co-authors.\n'
-                '4. Get the number of connections for a specific person.\n'
+                '4. Get the number of connections for a specific person or institution.\n'
                 '5. Get the average number of connections in the graph (the degree).\n'
                 '6. Get a list of UMSI faculty as a CSV file.')
         usr = input('\nEnter the number of your chosen action when ready. Type "exit" to quit.\n')
@@ -151,14 +151,36 @@ def main():
                     else:
                         print("I'm sorry. I don't understand. Please try again.")
         if usr == '3':
-            stats = graph.get_endow_summary(umsi_net)
-            print(
-                f"Average endowment of institutions connected to UMSI faculty: ${'{:,}'.format(round(stats[0]))}\n"
-                f"The median endowment is ${'{:,}'.format(round(stats[1]))}.\n"
-                f"Foreign currencies (EUR, GBP) have been converted to USD based on exchange rates as of 2023-04-19.")
-            choice = input('Would you like me to visualize endowment data for you? Enter "yes" or "no".\n')
-            if choice == 'yes':
-                visualize_endows(graph.get_endow_summary(umsi_net, show_all=True))
+            while True:
+                stats = graph.get_endow_summary(umsi_net)
+                print(
+                    f"Average endowment of institutions connected to UMSI faculty: ${'{:,}'.format(round(stats[0]))}\n"
+                    f"The median endowment is ${'{:,}'.format(round(stats[1]))}.\n"
+                    f"Foreign currencies (EUR, GBP) have been converted to USD based on exchange rates as of 2023-04-19.")
+                choice = input('Would you like me to visualize endowment data for you? Enter "yes" or "no".\n')
+                if choice == 'yes':
+                    visualize_endows(graph.get_endow_summary(umsi_net, show_all=True))
+                if choice == 'no':
+                    break
+                else:
+                    print("I'm sorry. I don't understand. Returning to main menu...")
+                    break
+        if usr == '4':
+            while True:
+                person = input('Who would you like to search for?\n')
+                try:
+                    print(f"{person} has {len(umsi_net.get_vertex(person).get_connections())} connections.")
+                except AttributeError:
+                    print(f"I'm sorry. I can't find {person}. Please check your spelling.")
+                choice = input('Would you like to search again? Enter "yes" or "no".\n')
+                if choice == 'yes':
+                    continue
+                if choice == 'no':
+                    break
+                else:
+                    print("I'm sorry. I don't understand. Returning to main menu...")
+                    break
+        # if usr == '5':
 
 
 if __name__ == '__main__':

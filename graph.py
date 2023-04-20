@@ -350,7 +350,7 @@ def main():
     print((umsi_net.get_vertex('Stanford University').get_id(),
            umsi_net.get_vertex('Stanford University').get_affil_endow()))
     print(umsi_net.get_vertex('Michael S. Bernstein'))
-    print(umsi_net.get_vertex('Mark Ackerman').get_affil_endow())
+    print(len(umsi_net.get_vertex('Michael S. Bernstein').get_connections()))
     print(bfs(umsi_net, umsi_net.get_vertex('Dan Jurafsky'), umsi_net.get_vertex('Ixchel Faniel')))
     utl.print_pretty(get_degrees(umsi_net)[:10])
 
