@@ -107,23 +107,3 @@ def save_cache(filepath, data, key=None):
         return cache
     else:
         write_json(filepath, data)
-
-
-def get_size(data):
-    """
-    TODO: Write docstring
-    :param data:
-    :return:
-    """
-    faculty = len(data['auths-coauths'])
-    coauths = 0
-    institutions = len(data.get('institutions'))
-
-    for person in data['auths-coauths']:
-        try:
-            for coauth in person.get('coauthors'):
-                coauths += 1
-        except TypeError:
-            continue
-    print(f"faculty = {faculty}, coauths = {coauths}, institutions = {institutions}")
-    return faculty, coauths, institutions
