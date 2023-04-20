@@ -181,6 +181,7 @@ def build_graph(data):
                     if entity in affil:
                         g.add_edge(vert, entity)
                         g.add_edge(entity, vert)
+                        g.get_vertex(vert).set_affil_endow(g.get_vertex(entity).get_affil_endow())
     return g
 
 
@@ -258,7 +259,7 @@ def get_degrees(graph):
     return sorted(authors, key=lambda item: item[1], reverse=True)
 
 
-def get_avg_degrees(graph):
+def get_avg_degree(graph):
     """
     TODO: Write docstring
     :param graph:
@@ -285,20 +286,25 @@ def get_endow_summary(graph):
             endow = graph.get_vertex(vert).get_affil_endow()
             endowments.append(parse_endow(endow))
     print(endowments)
-    return f"avg endowment  = {np.mean(endowments)} and median endowment = {np.median(endowments)}"
+    return np.mean(endowments), np.median(endowments)
 
 
 def parse_endow(endowment):
     """
-    TODO: Write docstring and implement exchange rate handling
+    TODO: Write docstring
     :param endowment:
     :return:
     """
     units = {'billion': 1_000_000_000, 'million': 1_000_000}
-    regex = r'((£|\$|€|¥)s*.*?)\s'
+    xchg = {'euro': 1.0973118055, 'gbp': 1.2450927781}
+    regex = r'((£|\$|€)s*.*?)\s'
     match = re.search(regex, endowment)
     if match:
         clean_endow = float(match.group(1).strip(match.group(2)).replace(',', '.'))
+        if match.group(2) == '£':
+            clean_endow = clean_endow * xchg.get('gbp')
+        elif match.group(2) == '€':
+            clean_endow = clean_endow * xchg.get('euro')
         if 'billion' in endowment:
             factor_endow = clean_endow * units.get('billion')
             return factor_endow
@@ -308,7 +314,15 @@ def parse_endow(endowment):
         else:
             raise ValueError
     else:
-        return float(endowment.strip('£$€¥').replace(',', ''))
+        clean_endow = float(endowment.strip('£$€¥').replace(',', ''))
+        if '£' in endowment:
+            endow = clean_endow * xchg.get('gbp')
+            return endow
+        if '€' in endowment:
+            endow = clean_endow * xchg.get('euro')
+            return endow
+        else:
+            return clean_endow
 
 
 def main():
@@ -325,11 +339,12 @@ def main():
     print((umsi_net.get_vertex('Stanford University').get_id(),
            umsi_net.get_vertex('Stanford University').get_affil_endow()))
     print(umsi_net.get_vertex('Michael S. Bernstein'))
+    print(umsi_net.get_vertex('Mark Ackerman').get_affil_endow())
     print(bfs(umsi_net, umsi_net.get_vertex('Dan Jurafsky'), umsi_net.get_vertex('Ixchel Faniel')))
     utl.print_pretty(get_degrees(umsi_net)[:10])
 
     print(umsi_net.get_vertex('University of Michigan').get_connection_ids())
-    print(get_avg_degrees(umsi_net))
+    print(get_avg_degree(umsi_net))
     print(get_endow_summary(umsi_net))
 
 
