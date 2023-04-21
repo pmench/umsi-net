@@ -163,13 +163,13 @@ def main():
             while True:
                 stats = graph.get_endow_summary(umsi_net)
                 print(
-                    f"Average endowment of institutions connected to UMSI faculty: ${'{:,}'.format(round(stats[0]))}\n"
-                    f"The median endowment is ${'{:,}'.format(round(stats[1]))}.\n"
-                    f"Foreign currencies (EUR, GBP) converted to USD based on exchange rates as of 2023-04-19.")
+                    f"Average endowment of institutions connected to UMSI faculty:\n${'{:,}'.format(round(stats[0]))}\n"
+                    f"The median endowment is:\n${'{:,}'.format(round(stats[1]))}.\n"
+                    f"\nForeign currencies (EUR, GBP) converted to USD based on exchange rates as of 2023-04-19.")
                 choice = input('Would you like me to visualize endowment data for you? Enter "yes" or "no".\n')
                 if choice == 'yes':
                     visualize_endows(graph.get_endow_summary(umsi_net, show_all=True))
-                    continue
+                    break
                 if choice == 'no':
                     break
                 if choice == 'exit':
@@ -240,9 +240,6 @@ def main():
                 continue
             if choice == 'exit':
                 sys.exit('Goodbye!')
-        else:
-            print("\nI'm sorry. I don't understand. Please try again.\n")
-            continue
 
 
 if __name__ == '__main__':
