@@ -7,7 +7,7 @@ from tqdm import tqdm
 import helper as utl
 
 
-# Graph class from Runestone Academy
+# Graph class based on code from Runestone Academy
 # https://runestone.academy/ns/books/published/pythonds/Graphs/Implementation.html
 class Graph:
     """
@@ -160,6 +160,7 @@ def build_graph(data):
     # Add UMSI faculty to graph
     for faculty in tqdm(data.get('auths-coauths'), 'Adding UMSI faculty'):
         g.add_vertex(faculty.get('name'))
+        g.get_vertex(faculty.get('name')).set_type('person')
         g.get_vertex(faculty.get('name')).set_affiliation('University of Michigan')
 
     # Add institutions with endowment data to graph
@@ -174,6 +175,7 @@ def build_graph(data):
         if faculty.get('coauthors') is not None:
             for person in faculty.get('coauthors'):
                 g.add_vertex(person.get('name'))
+                g.get_vertex(person.get('name')).set_type('person')
                 g.add_edge(faculty.get('name'), person.get('name'))
                 g.add_edge(person.get('name'), faculty.get('name'))
                 if g.get_vertex(person.get('name')).get_affiliation() is None:
@@ -216,11 +218,9 @@ def bfs(graph, start, end):
             if current_vert == end:
                 x = current_vert
                 while x.get_pred():
-                    print(x.get_id())
                     preds.append(x.get_id())
                     x = x.get_pred()
                 preds.append(x.get_id())
-                print(x.get_id())
                 return current_vert.get_distance(), preds
             else:
                 for nbr in current_vert.get_connections():
@@ -336,6 +336,27 @@ def parse_endow(endowment):
             return clean_endow
 
 
+def graph_to_json(graph):
+    """
+    TODO: Write docstring.
+    :param graph:
+    :return:
+    """
+    graph_json = {}
+    vertices = graph.vert_list
+    for vert in vertices:
+        graph_json.update({vertices[vert].get_id(): {
+            'connected_to': [entity.get_id() for entity in vertices[vert].get_connections()],
+            'color': vertices[vert].get_color(),
+            'dist': 'infinity',
+            'pred': vertices[vert].get_pred(),
+            'affiliation': vertices[vert].get_affiliation(),
+            'affil_endow': vertices[vert].get_affil_endow(),
+            'degree': vertices[vert].get_degree(),
+            'type': vertices[vert].get_type()}})
+    utl.write_json('graph_structure.json', graph_json)
+
+
 def main():
     """
     Entry point for program.
@@ -344,19 +365,20 @@ def main():
     :return: none.
     """
     umsi_net = build_graph(utl.read_json('cache.json'))
-    # utl.print_pretty(umsi_net.vert_list)
-    print(len(umsi_net.vert_list))
-    print((umsi_net.get_vertex('Ixchel Faniel').get_id(), umsi_net.get_vertex('Ixchel Faniel').get_affiliation()))
-    print((umsi_net.get_vertex('Stanford University').get_id(),
-           umsi_net.get_vertex('Stanford University').get_affil_endow()))
-    print(umsi_net.get_vertex('Michael S. Bernstein'))
-    print(len(umsi_net.get_vertex('Michael S. Bernstein').get_connections()))
-    print(bfs(umsi_net, umsi_net.get_vertex('Dan Jurafsky'), umsi_net.get_vertex('Ixchel Faniel')))
-    utl.print_pretty(get_degrees(umsi_net)[:10])
-
-    print(umsi_net.get_vertex('University of Michigan').get_connection_ids())
-    print(get_avg_degree(umsi_net))
-    print(get_endow_summary(umsi_net))
+    utl.print_pretty(len(umsi_net.vert_list))
+    utl.print_pretty(umsi_net.get_vertices())
+    graph_to_json(umsi_net)
+    # print(len(umsi_net.vert_list))
+    # print((umsi_net.get_vertex('Ixchel Faniel').get_id(), umsi_net.get_vertex('Ixchel Faniel').get_affiliation()))
+    # print((umsi_net.get_vertex('Stanford University').get_id(),
+    #        umsi_net.get_vertex('Stanford University').get_affil_endow()))
+    # print(umsi_net.get_vertex('Michael S. Bernstein'))
+    # print(len(umsi_net.get_vertex('Michael S. Bernstein').get_connections()))
+    # print(bfs(umsi_net, umsi_net.get_vertex('Dan Jurafsky'), umsi_net.get_vertex('Ixchel Faniel')))
+    # utl.print_pretty(get_degrees(umsi_net)[:10])
+    # print(umsi_net.get_vertex('University of Michigan').get_connection_ids())
+    # print(get_avg_degree(umsi_net))
+    # print(get_endow_summary(umsi_net))
 
 
 if __name__ == '__main__':

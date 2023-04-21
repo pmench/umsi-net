@@ -75,14 +75,14 @@ def visualize_endows(endowments):
     :param endowments:
     :return:
     """
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 12), sharey='all')
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 8), sharey='all')
     endows = pd.DataFrame({'endowments': endowments})
     box_plot = sns.boxplot(endows, y='endowments', ax=ax1)
     median = endows['endowments'].median()
     for xtick in box_plot.get_xticks():
-        box_plot.text(xtick, median * 1.3, median,
+        box_plot.text(xtick, median * 1.3, '${:,}'.format(median),
                       horizontalalignment='center', size='x-small', color='w', weight='semibold')
-    sns.histplot(endows, y='endowments', ax=ax2)
+    sns.histplot(endows, y='endowments', ax=ax2, bins=70)
     fig.suptitle('Endowments of Institutions Connected to UMSI Faculty', fontsize=20)
     ax1.set_ylabel('Size of Endowments (tens of billions USD)')
     ax1.grid(visible=True, color='b', axis='y')
@@ -107,11 +107,12 @@ def main():
         print('Make a selection from the following options:\n'
               '1. Find connections between authors.\n'
               '2. See the top 10 most connected people and universities.\n'
-              '3. Get average and median endowment size of universities\n'
+              '3. Get the average and median endowment size of universities\n'
               + '   connected to UMSI faculty by their co-authors.\n'
                 '4. Get the number of connections for a specific person or institution.\n'
                 '5. Get the average number of connections in the graph (the degree).\n'
-                '6. Get a list of UMSI faculty as a CSV file.')
+                '6. Get a list of UMSI faculty as a CSV file.\n'
+                '7. Export the graph structure to JSON.\n')
         usr = input('\nEnter the number of your chosen action when ready. Type "exit" to quit.\n')
         if usr == 'exit':
             sys.exit('Goodbye!')
@@ -125,11 +126,13 @@ def main():
                         author_1 = input("Enter first author's name.\n")
                         author_2 = input("Enter second author's name.\n")
                         get_links(umsi_net, author_1, author_2)
+                        continue
                     except TypeError:
                         print("Sorry, I don't understand.\nCheck your spelling. It is also possible one of the authors"
                               + " you entered isn't in my data. Please try again.\n")
                 if choice == '2':
                     get_links(umsi_net, rand=True)
+                    continue
                 if choice == 'menu':
                     break
                 if choice == 'exit':
@@ -157,12 +160,15 @@ def main():
                 print(
                     f"Average endowment of institutions connected to UMSI faculty: ${'{:,}'.format(round(stats[0]))}\n"
                     f"The median endowment is ${'{:,}'.format(round(stats[1]))}.\n"
-                    f"Foreign currencies (EUR, GBP) have been converted to USD based on exchange rates as of 2023-04-19.")
+                    f"Foreign currencies (EUR, GBP) converted to USD based on exchange rates as of 2023-04-19.")
                 choice = input('Would you like me to visualize endowment data for you? Enter "yes" or "no".\n')
                 if choice == 'yes':
                     visualize_endows(graph.get_endow_summary(umsi_net, show_all=True))
+                    continue
                 if choice == 'no':
                     break
+                if choice == 'exit':
+                    sys.exit('Goodbye!')
                 else:
                     print("I'm sorry. I don't understand. Returning to main menu...")
                     break
@@ -203,6 +209,27 @@ def main():
                 continue
             if choice == 'exit':
                 sys.exit('Goodbye!')
+        if usr == '7':
+            path = f'{pathlib.Path(__file__).parent.resolve()}/graph_structure.json'
+            print(f'Writing file to: {path}\nGraph vertex object attributes include:\n'
+                  f'    - connected_to: a list of other vertices connected to the vertex.\n'
+                  f'    - color: an indicator used to track traversed vertices during search.\n'
+                  f'    - dist: value used to track distance between vertices during search.\n'
+                  f'    - pred: vertex preceding the current vertex during search.\n'
+                  f'    - affiliation: institutional affiliation of person.\n'
+                  f'    - affil_endow: endowment of affiliated institution.\n'
+                  f'    - degree: number of vertices connected to vertex.\n'
+                  f'    - type: used to identify vertex as "person" or "institution"\n')
+            graph.graph_to_json(umsi_net)
+            choice = input('Choose "menu" or "exit" to continue.\n')
+            if choice == 'menu':
+                continue
+            if choice == 'exit':
+                sys.exit('Goodbye!')
+
+        else:
+            print("\nI'm sorry. I don't understand. Please try again.\n")
+            continue
 
 
 if __name__ == '__main__':
