@@ -20,8 +20,8 @@ Mapping this network can answer several questions:
 The program provides a command line interface that allows a user to take a number of actions:
 1. Find connections between authors.
 2. See the top 10 most connected people and universities.
-3. Get the average and median endowment size of universities.
-   connected to UMSI faculty by their co-authors.
+3. Get the average and median endowment size of universities connected to UMSI faculty
+by their co-authors.
 4. Get the number of connections for a specific person or institution.
 5. Get the average number of connections in the graph (the degree).
 6. Export the list of UMSI faculty to a CSV file.
