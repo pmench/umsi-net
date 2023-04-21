@@ -2,3 +2,6 @@
 **/__pycache__
 .DS_Store
 /cache-test.json
+/umsi_faculty.csv
+/graph_structure.json
+/institutions.csv
