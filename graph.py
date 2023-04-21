@@ -11,7 +11,6 @@ import helper as utl
 # https://runestone.academy/ns/books/published/pythonds/Graphs/Implementation.html
 class Graph:
     """
-    TODO: Update docstring
     This class defines a graph object.
 
     Attributes:
@@ -19,7 +18,10 @@ class Graph:
         num_vertices (int): total number of vertices in the graph.
     Methods:
         add_vertex: increases the number of vertices in the graph by one,
-            adding the passed-in Vertex object to vert_list.
+            adding the passed-in Vertex object to vert_list if it is not
+            already in the graph. If the optional "warn" is set to True,
+            it prints the names of vertices already in the graph as it
+            encounters them.
         get_vertex: given a vertex, it checks if the vertex exists in
             vert_list and, if so, returns the vertex object from vert_list.
         __contains__: defines the behavior of the "in" operator for the class.
@@ -72,7 +74,53 @@ class Graph:
 # https://runestone.academy/ns/books/published/pythonds/Graphs/Implementation.html
 class Vertex:
     """
-    TODO: Write Docstring
+    This class defines a Vertex object representing a person or institution.
+
+    Attributes:
+        id (str): identifier for vertex object (e.g. name)
+        connected_to (dict): dictionary of vertices connected to vertex
+            by an edge.
+        color (str): indicator used to track traversal during search.
+        dist (float | int): counter for distance traversed between vertices
+            during search.
+        pred (vertex obj): vertex traversed just before vertex during search.
+        affiliation (str): affiliated institution and job position for vertex.
+        affil_endow (str): size of endowment of affiliated institution.
+        degree (int): number of vertices connected to vertex.
+        type (str): indicates whether the vertex is a person or an institution.
+    Methods:
+        add_neighbor: updates the connected_to attribute with nbr vertex
+            as key and weight as value.
+            When called by the Graph() class method add_edge, it obtains
+            information for the connected vertices from the graph's
+            vert_list.
+        __str__: defines behavior for returning a string with vertex
+            information.
+        set_color: sets the color attribute of a vertex, used for tracking
+            whether the vertex has been traversed during search.
+        set_distance: sets the distance attribute of the vertex, reflecting
+            the distance traveled from a starting vertex during a search.
+        set_pred: sets the pred attribute of a vertex, which tracks the
+            vertex traversed immediately before the vertex during search.
+        set_affiliation: sets the affiliation attribute of the vertex.
+        set_affil_endow: sets the affil_endow attribute of the vertex.
+        set_type: sets the type attribute of the vertex.
+        get_connections: returns keys from the connected_to attribute,
+            listing all vertices set as the vertex's neighbor.
+        get_connection_ids: returns the keys for each vertex object in the
+            connected_to dictionary.
+        get_id: returns the vertex's key, or the name given to the vertex.
+        get_weight: returns the weight of the edge between vertex and nbr
+            from the connected_to dictionary.
+        get_pred: returns the pred attribute of the vertex.
+        get_distance: returns the distance attribute of the vertex.
+        get_color: returns the color attribute of the vertex.
+        get_affiliation: returns affiliation attribute of the vertex.
+        get_affil_endow: returns the affil_endow attribute of the vertex.
+        get_degree: returns the degree attribute of the vertex.
+        calc_degree: determines the number of vertices connected to the vertex
+            and assigns the value to the vertex's degree attribute.
+        get_type: returns the type attribute of the vertex.
     """
 
     def __init__(self, key):
@@ -197,16 +245,12 @@ def build_graph(data):
 
 def bfs(graph, start, end):
     """
-    TODO: Update docstring
-    This function uses breadth-first search to find the shortest path
-    between the start and end.
-
-    Parameters:
-        graph (object): object of Graph() class containing data.
-        start (object): vertex where search should begin.
-        end (object): vertex where search should end.
-    Returns:
-        integer representing distance between start and end.
+    Using breadth-first search, finds the shortest path between the start and end vertices.
+    :param graph: (graph obj) graph object containing data.
+    :param start: (vertex obj) vertex at which to begin the search.
+    :param end: (vertex obj) vertex at which to end the search.
+    :return: (tuple) integer representing distance between start and end
+        and a list of vertices traversed between start and end.
     """
     reset_graph(graph)
     try:
@@ -242,11 +286,8 @@ def reset_graph(graph):
     """
     This function allows for successive searches of the graph by resetting
     vertex attributes that are used to track visited vertices during search.
-
-    Parameters:
-        graph (object): object of the Graph() class containing vertices.
-    Returns:
-        None
+    :param graph: object of the Graph class.
+    :return: none.
     """
     for vert in graph:
         vert.set_color('white')
@@ -256,9 +297,10 @@ def reset_graph(graph):
 
 def get_degrees(graph):
     """
-    TODO: write docstring
-    :param graph:
-    :return:
+    Assembles a list of all vertices in the graph with the total number
+    of vertices connected to each vertex.
+    :param graph: object of the Graph class.
+    :return: list of tuples
     """
     authors = []
     for key in graph.vert_list.keys():
@@ -269,9 +311,10 @@ def get_degrees(graph):
 
 def get_avg_degree(graph):
     """
-    TODO: Write docstring
-    :param graph:
-    :return:
+    For the entire graph, calculates the average number of connections
+    each vertex has.
+    :param graph: object of the Graph class.
+    :return: float
     """
     degrees = []
     for key in graph.vert_list.keys():
@@ -282,16 +325,16 @@ def get_avg_degree(graph):
 
 def get_endow_summary(graph, show_all=False):
     """
-    TODO: Write docstring, make number more readable
-    :param show_all:
-    :param graph:
-    :return:
+    Calculates the mean and median of endowments in the graph data or, optionally,
+    the endowments of all institutions in graph. It delegates parsing endowment data to the
+    parse_endow function.
+    :param graph: object of the Graph class.
+    :param show_all: (bool) if True, returns a list of all endowments rather than the mean and median.
+    :return: (list | tuple) list of all endowments or a tuple of the mean and median of all endowments.
     """
     endowments = []
-    with_endowments = 0
     for vert in graph.vert_list:
         if graph.get_vertex(vert).get_affil_endow() is not None and graph.get_vertex(vert).get_type() == 'institution':
-            with_endowments += 1
             endow = graph.get_vertex(vert).get_affil_endow()
             endowments.append(parse_endow(endow))
     if show_all:
@@ -302,9 +345,11 @@ def get_endow_summary(graph, show_all=False):
 
 def parse_endow(endowment):
     """
-    TODO: Write docstring
-    :param endowment:
-    :return:
+    Converts a string with information about the size of an institution's endowment
+    to a float, using exchange rates current as of 2023-04-19 to convert currencies
+    to USD.
+    :param endowment: (str) size of an institution's endowment.
+    :return: float
     """
     units = {'billion': 1_000_000_000, 'million': 1_000_000}
     xchg = {'euro': 1.0973118055, 'gbp': 1.2450927781}
@@ -338,9 +383,11 @@ def parse_endow(endowment):
 
 def graph_to_json(graph):
     """
-    TODO: Write docstring.
-    :param graph:
-    :return:
+    Constructs a dictionary of vertices in the graph object and exports to
+    JSON format, delegating JSON serialization to the write_json function
+    in the helper module.
+    :param graph: object of the Graph class.
+    :return: none.
     """
     graph_json = {}
     vertices = graph.vert_list
@@ -357,6 +404,24 @@ def graph_to_json(graph):
     utl.write_json('graph_structure.json', graph_json)
 
 
+def orgs_to_csv(graph):
+    """
+    Writes a list of institutions, the size of their endowments, and the number of vertices
+    each is connected to in the graph to a CSV file. It delegates creation of the CSV file
+    to the write_csv function in the helper module.
+    :param graph: object of the Graph class.
+    :return: none.
+    """
+    orgs = []
+    headers = ['institution', 'endowment', 'num_connections']
+    vertices = graph.vert_list
+    for vert in vertices:
+        if vertices[vert].get_type() == 'institution':
+            info = [vertices[vert].get_id(), vertices[vert].get_affil_endow(), len(vertices[vert].connected_to.keys())]
+            orgs.append(info)
+    utl.write_csv('institutions.csv', orgs, headers=headers)
+
+
 def main():
     """
     Entry point for program.
@@ -364,21 +429,17 @@ def main():
     :params: none.
     :return: none.
     """
+    # Check properties of graph
     umsi_net = build_graph(utl.read_json('cache.json'))
-    utl.print_pretty(len(umsi_net.vert_list))
+    print(len(umsi_net.vert_list))
     utl.print_pretty(umsi_net.get_vertices())
-    graph_to_json(umsi_net)
-    # print(len(umsi_net.vert_list))
-    # print((umsi_net.get_vertex('Ixchel Faniel').get_id(), umsi_net.get_vertex('Ixchel Faniel').get_affiliation()))
-    # print((umsi_net.get_vertex('Stanford University').get_id(),
-    #        umsi_net.get_vertex('Stanford University').get_affil_endow()))
-    # print(umsi_net.get_vertex('Michael S. Bernstein'))
-    # print(len(umsi_net.get_vertex('Michael S. Bernstein').get_connections()))
-    # print(bfs(umsi_net, umsi_net.get_vertex('Dan Jurafsky'), umsi_net.get_vertex('Ixchel Faniel')))
-    # utl.print_pretty(get_degrees(umsi_net)[:10])
-    # print(umsi_net.get_vertex('University of Michigan').get_connection_ids())
-    # print(get_avg_degree(umsi_net))
-    # print(get_endow_summary(umsi_net))
+    print((umsi_net.get_vertex('Ixchel Faniel').get_id(), umsi_net.get_vertex('Ixchel Faniel').get_affiliation()))
+    print((umsi_net.get_vertex('Stanford University').get_id(),
+           umsi_net.get_vertex('Stanford University').get_affil_endow()))
+    print(umsi_net.get_vertex('Michael S. Bernstein'))
+    print(len(umsi_net.get_vertex('Michael S. Bernstein').get_connections()))
+    print(bfs(umsi_net, umsi_net.get_vertex('Dan Jurafsky'), umsi_net.get_vertex('Ixchel Faniel')))
+    utl.print_pretty(get_degrees(umsi_net)[:10])
 
 
 if __name__ == '__main__':

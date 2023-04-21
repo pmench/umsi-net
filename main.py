@@ -12,11 +12,13 @@ import helper as utl
 
 def display_path(shortest_path, start, end):
     """
-    TODO: Write docstring.
-    :param end:
-    :param start:
-    :param shortest_path:
-    :return:
+    Parses data in shortest_path tuple that contains names of start vertex,
+    end vertex, and distance between the start and end. The data is inserted
+    into a pandas dataframe and converted to a markdown display.
+    :param shortest_path: (tuple) path data for two vertices retrieved from the graph.
+    :param start: (str) name of starting vertex.
+    :param end: (str) name of ending vertex.
+    :return: pandas dataframe converted to Markdown table.
     """
     links = [link[0] for link in shortest_path[1]]
     affils = [link[1] for link in shortest_path[1]]
@@ -29,12 +31,13 @@ def display_path(shortest_path, start, end):
 
 def get_links(net, start=None, end=None, rand=False):
     """
-    TODO: Write docstring
-    :param net:
-    :param rand:
-    :param start:
-    :param end:
-    :return:
+    Obtains shortest path information for two vertices from a graph and passes
+    it to display_path for further processing.
+    :param net: graph object.
+    :param start: (str) name of starting vertex.
+    :param end: (str) name of ending vertex.
+    :param rand: (bool) if True, get_links selects two random vertices from the graph object.
+    :return: none.
     """
     if rand:
         generator = np.random.default_rng()
@@ -53,9 +56,9 @@ def get_links(net, start=None, end=None, rand=False):
 
 def display_degrees(degrees_data):
     """
-    TODO: Write docstring
-    :param degrees_data:
-    :return:
+    Using data retrieved from the graph object, displays vertices with their degree.
+    :param degrees_data: (list) degree data for vertices retrieved from graph object.
+    :return: dataframe converted to Markdown table containing degree data.
     """
     entities = [ent[0] for ent in degrees_data]
     degrees = [ent[1] for ent in degrees_data]
@@ -67,13 +70,13 @@ def display_degrees(degrees_data):
 
 def visualize_endows(endowments):
     """
-    TODO: Write docstring.
+    Plots endowment data retrieved from graph object using a boxplot and histogram.
 
     Method for labeling median adapted from:
     https://stackoverflow.com/questions/38649501/labeling-boxplot-in-seaborn-with-median-value
 
-    :param endowments:
-    :return:
+    :param endowments: (list) size of endowments from institutions in graph object.
+    :return: none.
     """
     fig, (ax1, ax2) = subplots(1, 2, figsize=(8, 8), sharey='all')
     endows = pd.DataFrame({'endowments': endowments})
@@ -111,8 +114,9 @@ def main():
               + '   connected to UMSI faculty by their co-authors.\n'
                 '4. Get the number of connections for a specific person or institution.\n'
                 '5. Get the average number of connections in the graph (the degree).\n'
-                '6. Get a list of UMSI faculty as a CSV file.\n'
-                '7. Export the graph structure to JSON.\n')
+                '6. Export the list of UMSI faculty to a CSV file.\n'
+                '7. Export the graph structure to JSON.\n'
+                '8. Export the list of institutions to a CSV file.\n')
         usr = input('\nEnter the number of your chosen action when ready. Type "exit" to quit.\n')
         if usr == 'exit':
             sys.exit('Goodbye!')
@@ -226,7 +230,15 @@ def main():
                 continue
             if choice == 'exit':
                 sys.exit('Goodbye!')
-
+        if usr == '8':
+            path = f'{pathlib.Path(__file__).parent.resolve()}/institutions.csv'
+            print(f'Writing file to {path}.')
+            graph.orgs_to_csv(umsi_net)
+            choice = input('Choose "menu" or "exit" to continue.\n')
+            if choice == 'menu':
+                continue
+            if choice == 'exit':
+                sys.exit('Goodbye!')
         else:
             print("\nI'm sorry. I don't understand. Please try again.\n")
             continue
