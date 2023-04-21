@@ -42,6 +42,8 @@ scripts, such as functions to read and write JSON files.
 Note that the cache file is required as it is the data source for constructing the graph. Make sure the
 cache, graph.py, helper.py, and main.py are all in the same directory when running the program.
 
+API keys are required for scraping and cleaning data with the scholar.py and affiliations.py files. 
+
 Beyond the standard Python library, this project makes use of: numpy, pandas, seaborn, tqdm, selenium,
 scholarly, openai, and matplotlib (see requirements.txt).
 
