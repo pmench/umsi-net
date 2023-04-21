@@ -88,6 +88,7 @@ def visualize_endows(endowments):
     sns.histplot(endows, y='endowments', ax=ax2, bins=70)
     fig.suptitle('Endowments of Institutions Connected to UMSI Faculty', fontsize=20)
     ax1.set_ylabel('Size of Endowments (tens of billions USD)')
+    ax2.set_xlabel('Number of Institutions')
     ax1.grid(visible=True, color='b', axis='y')
     ax2.grid(visible=True, color='b', axis='y')
     show()
