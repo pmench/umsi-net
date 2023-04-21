@@ -28,7 +28,7 @@ by their co-authors.
 7. Export the graph structure to JSON.
 8. Export the list of institutions to a CSV file.
 
-Selecting option 3 also allows provides the option to visualize endowment data contained in the
+Selecting option 3 also provides the option to visualize endowment data contained in the
 graph.
 
 ### Use
