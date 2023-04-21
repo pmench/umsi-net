@@ -1,7 +1,7 @@
 import pathlib
 import sys
 
-import matplotlib.pyplot as plt
+from matplotlib.pyplot import show, subplots
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -75,7 +75,7 @@ def visualize_endows(endowments):
     :param endowments:
     :return:
     """
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 8), sharey='all')
+    fig, (ax1, ax2) = subplots(1, 2, figsize=(8, 8), sharey='all')
     endows = pd.DataFrame({'endowments': endowments})
     box_plot = sns.boxplot(endows, y='endowments', ax=ax1)
     median = endows['endowments'].median()
@@ -87,7 +87,7 @@ def visualize_endows(endowments):
     ax1.set_ylabel('Size of Endowments (tens of billions USD)')
     ax1.grid(visible=True, color='b', axis='y')
     ax2.grid(visible=True, color='b', axis='y')
-    plt.show()
+    show()
 
 
 def main():
@@ -107,7 +107,7 @@ def main():
         print('Make a selection from the following options:\n'
               '1. Find connections between authors.\n'
               '2. See the top 10 most connected people and universities.\n'
-              '3. Get the average and median endowment size of universities\n'
+              '3. Get the average and median endowment size of universities.\n'
               + '   connected to UMSI faculty by their co-authors.\n'
                 '4. Get the number of connections for a specific person or institution.\n'
                 '5. Get the average number of connections in the graph (the degree).\n'
