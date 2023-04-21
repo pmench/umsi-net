@@ -6,7 +6,6 @@ import pprint
 def print_pretty(obj):
     """
     Applies PrettyPrinter to passed in object.
-
     :param obj: (list | dict) Object to be pretty printed
     :return: formatted representation of object.
     """
@@ -17,7 +16,6 @@ def print_pretty(obj):
 def read_json(filepath, encoding='utf-8'):
     """
     Deserializes JSON object and returns a list or dictionary.
-
     :param filepath: (str) name of path for file.
     :param encoding: (str) name of encoding for file.
     :return: dict | list representation of JSON object.
@@ -29,7 +27,6 @@ def read_json(filepath, encoding='utf-8'):
 def write_json(filepath, data, encoding='utf-8', ensure_ascii=False, indent=2):
     """
     Serializes an object as JSON.
-
     :param filepath: (str) name of path for file
     :param data: (dict | list) the data to be encoded as JSON and written to file.
     :param encoding: (str) name of the encoding for file.
@@ -46,7 +43,6 @@ def write_csv(filepath, data, headers=None, encoding='utf-8', newline=''):
     """
     Writes data to a CSV file. Column headers are written as the first
     row of the CSV file if optional headers are specified.
-
     :param filepath: (str) path to file.
     :param data: (list | tuple ) data to write to CSV.
     :param headers: (list | tuple) optional header row for CSV.
@@ -66,8 +62,8 @@ def write_csv(filepath, data, headers=None, encoding='utf-8', newline=''):
 
 def update_cache(filepath, data, key=None):
     """
-    Updates an existing cache file with new data. If a key is passed, it attempts to append the data to the key's value.
-
+    Updates an existing cache file with new data. If a key is passed, it attempts to
+    append the data to the key's value.
     :param filepath: (str) path to cache.
     :param data: (list | dict) data to add to cache.
     :param key: key update or add to cache
@@ -92,9 +88,8 @@ def update_cache(filepath, data, key=None):
 
 def save_cache(filepath, data, key=None):
     """
-    Writes data to given filepath in JSON format to create a cache. If a key is provided, it adds
-    the given data as values to the key.
-
+    Writes data to given filepath in JSON format to create a cache.
+    If a key is provided, it adds the given data as values to the key.
     :param filepath: (str) path for file.
     :param data: (list | dict | str) data to write to cache.
     :param key: (str) key to assign to data.
