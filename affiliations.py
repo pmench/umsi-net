@@ -97,7 +97,7 @@ def main():
     # Use OpenAI API to parse institutions
     chunked = chunk_data(affils, 300)
     entities = call_openai(model='gpt-3.5-turbo', data=chunked, limit=2)
-    utl.update_cache('cache.json', entities, key='institutions')
+    # utl.update_cache('cache.json', entities, key='institutions')
 
 
 if __name__ == '__main__':

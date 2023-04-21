@@ -59,7 +59,7 @@ def main():
     """
     institutions = utl.read_json('cache.json').get('institutions')
     enriched = get_assets(institutions)
-    utl.update_cache('cache.json', enriched, key='enrich_institutions')
+    # utl.update_cache('cache.json', enriched, key='enrich_institutions')
     print(len(institutions))
     print(len(enriched))
 

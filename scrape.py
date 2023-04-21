@@ -47,7 +47,7 @@ def main():
 
     # NOTE: UMSI seemed to block all attempts at automating with a loop, including when using with
     # time.sleep() and Selenium Waits
-    # Faculty list was created with the below code by manually passing in the index for each url in urls
+    # Faculty list was created with the below code by manually passing in the index for each url in urls (0-9)
     # and caching the results
     umsi_faculty = []
     driver.get(urls[10])
