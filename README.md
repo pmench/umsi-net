@@ -39,6 +39,9 @@ data and write it to the cache. The scripts for obtaining data should be used wi
 could overwrite existing data in the cache. The helper.py module contains functions useful across all
 scripts, such as functions to read and write JSON files.
 
+Note that the cache file is required as it is the data source for constructing the graph. Make sure the
+cache, graph.py, helper.py, and main.py are all in the same directory when running the program.
+
 Beyond the standard Python library, this project makes use of: numpy, pandas, seaborn, tqdm, selenium,
 scholarly, openai, and matplotlib (see requirements.txt).
 
