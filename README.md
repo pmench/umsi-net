@@ -44,7 +44,7 @@ cache, graph.py, helper.py, and main.py are all in the same directory when runni
 
 API keys are required for scraping and cleaning data with the scholar.py and affiliations.py files. 
 
-Beyond the standard Python library, this project makes use of: numpy, pandas, seaborn, tqdm, selenium,
+Beyond the standard Python library, this project makes use of: numpy, pandas, tabulate, seaborn, tqdm, selenium,
 scholarly, openai, and matplotlib (see requirements.txt).
 
 ### Data Structure
